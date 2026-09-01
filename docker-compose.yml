@@ -17,8 +17,9 @@
 # On WSL2 add VLLM_WSL2_ENABLE_PIN_MEMORY=1 to that .env: SPEC=dflash2 forces vLLM's
 # V2 model runner, whose UVA buffers are refused there by default, and the container
 # aborts at "RuntimeError: UVA is not available" before loading weights (docs/docker.md).
-# PORT and MODELS_DIR are read here: models live in ./models by default
+# PORT, MODELS_DIR, and GPU_DEVICE_ID are read here: models live in ./models by default
 # (the same layout as the venv install, so both can share one download).
+# GPU_DEVICE_ID defaults to 0; set it to the desired NVIDIA device index in mixed rigs.
 # One GPU: run either "single" or "batch", not both.
 
 x-qwen: &qwen
@@ -52,7 +53,7 @@ x-serve: &serve
       reservations:
         devices:
           - driver: nvidia
-            count: 1
+            device_ids: ["${GPU_DEVICE_ID:-0}"]
             capabilities: [gpu]
   restart: unless-stopped
   stop_grace_period: 30s
